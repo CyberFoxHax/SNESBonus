@@ -1,0 +1,55 @@
+﻿<Window x:Class="SnesBonus.Views.Settings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ConfigurePaths" Height="311" Width="635" >
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="Button">
+                <Setter Property="Height" Value="30"></Setter>
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="Height" Value="30"></Setter>
+                <Setter Property="FontWeight" Value="Black"></Setter>
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="Height" Value="30"></Setter>
+                <Setter Property="Background" Value="WhiteSmoke"></Setter>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="104"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="43"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Use {this} identifier to target application directory" Grid.ColumnSpan="3" FontSize="15" Margin="15,3,0,0"></TextBlock>
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <Label Content="GamesDb" />
+            <Label Content="Executable" />
+            <Label Content="RomsFolder" />
+            <Label Content="ImagesFolder" />
+            <Separator Height="15"/>
+            <Label Content="Scraper Interval" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <TextBox  x:Name="TxtGamesDb"></TextBox>
+            <TextBox  x:Name="TxtExecutable"></TextBox>
+            <TextBox  x:Name="TxtRomsFolder"></TextBox>
+            <TextBox  x:Name="TxtImagesFolder"></TextBox>
+            <Separator Height="15"/>
+            <TextBox  x:Name="TxtScraperInterval"></TextBox>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <Button Content="..." Click="GamesDbBrowse_Click" />
+            <Button Content="..." Click="ExecutableBrowse_Click" />
+            <Button Content="..." Click="RomsFolderBrowse_Click" />
+            <Button Content="..." Click="ImagesFolderBrowse_Click" />
+            <Separator Height="15"/>
+        </StackPanel>
+        <Button Grid.Row="1" Content="Close" Click="CloseBtn_Click" Grid.Column="1" Margin="0,0,10,10" Height="34" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Grid.ColumnSpan="2" />
+        <Button Grid.Row="1" Content="Save" Click="SaveBtn_Click" Grid.Column="1" Margin="0,0,56,10" Height="34" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" />
+    </Grid>
+</Window>
