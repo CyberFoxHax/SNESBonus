@@ -12,17 +12,18 @@ namespace SnesBonus.Views {
 		private Models.Game _game;
 		private static readonly Dictionary<Models.Game, EditGame> Editors = new Dictionary<Models.Game, EditGame>();
 
-		public static event Action<Models.Game> GameSaved;
+		public event Action<Models.Game> GameSaved;
 
-		public static void GameOnClick(Models.Game game){
+		public static EditGame OpenEditor(Models.Game game){
 			if (Editors.ContainsKey(game)){
 				Editors[game].Focus();
-				return;
+				return Editors[game];
 			}
 
 			var view = Editors[game] = new EditGame{ _game = game };
 			view.ModelToView(game);
 			view.Show();
+			return view;
 		}
 
 		private void ModelToView(Models.Game game){

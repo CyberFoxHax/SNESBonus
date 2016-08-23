@@ -9,11 +9,12 @@ namespace SnesBonus.Views {
 	public partial class Settings {
 		public Settings() {
 			InitializeComponent();
-			TxtGamesDb.Text = Properties.Settings.Default.GamesDb;
-			TxtRomsFolder.Text = Properties.Settings.Default.RomsFolder;
-			TxtImagesFolder.Text = Properties.Settings.Default.ImageFolder;
-			TxtExecutable.Text = Properties.Settings.Default.ExecutableFile;
+			TxtGamesDb.Text			= Properties.Settings.Default.GamesDb;
+			TxtRomsFolder.Text		= Properties.Settings.Default.RomsFolder;
+			TxtImagesFolder.Text	= Properties.Settings.Default.ImageFolder;
+			TxtExecutable.Text		= Properties.Settings.Default.ExecutableFile;
 			TxtScraperInterval.Text = Properties.Settings.Default.ScraperTimeout + "";
+			BoolAutoScrape.IsChecked= Properties.Settings.Default.AutoScrape;
 		}
 
 		private void CloseBtn_Click(object sender, RoutedEventArgs e){
@@ -21,10 +22,11 @@ namespace SnesBonus.Views {
 		}
 
 		private void SaveBtn_Click(object sender, RoutedEventArgs e){
-			Properties.Settings.Default.GamesDb = TxtGamesDb.Text;
-			Properties.Settings.Default.RomsFolder = TxtRomsFolder.Text;
-			Properties.Settings.Default.ImageFolder = TxtImagesFolder.Text;
-			Properties.Settings.Default.ExecutableFile = TxtExecutable.Text;
+			Properties.Settings.Default.GamesDb			= TxtGamesDb.Text;
+			Properties.Settings.Default.RomsFolder		= TxtRomsFolder.Text;
+			Properties.Settings.Default.ImageFolder		= TxtImagesFolder.Text;
+			Properties.Settings.Default.ExecutableFile	= TxtExecutable.Text;
+			Properties.Settings.Default.AutoScrape		= BoolAutoScrape.IsChecked==true;
 
 			int intout;
 			if (int.TryParse(TxtScraperInterval.Text, out intout))

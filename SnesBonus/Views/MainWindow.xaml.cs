@@ -24,18 +24,14 @@ namespace SnesBonus.Views {
 			DataGrid.ItemsSource = _games;
 			DataGrid.Focus();
 
-			EditGame.GameSaved += EditGameOnGameSaved;
+			App.GamesDbChanged += AppOnGamesDbChanged;
+			App.RomsDirChanged += AppOnRomsDirChanged;
+
+			AppOnRomsDirChanged();
 		}
 
 		public void LoadGamesList(){
-			if (System.IO.File.Exists(GamesDb))
-				_games = CsQuery.Utility.JSON.ParseJSON<List<Models.Game>>(System.IO.File.ReadAllText(GamesDb));
-
-			foreach (var game in _games.ToList()) {
-				var localFilePath = ImageFolder + game.ImagePath.CleanFileName();
-				if (System.IO.File.Exists(localFilePath))
-					game.ImagePath = localFilePath;
-			}
+			_games = Utils.LoadGamesFromJson();
 		}
 
 		private void EditGameOnGameSaved(Models.Game game){
@@ -43,8 +39,10 @@ namespace SnesBonus.Views {
 		}
 
 		private void RefreshGamesList(){
-			DataGrid.ItemsSource = null;
-			DataGrid.ItemsSource = _games;
+			Dispatcher.Invoke(() =>{
+				DataGrid.ItemsSource = null;
+				DataGrid.ItemsSource = _games;
+			});
 		}
 
 		private System.Diagnostics.Process _snesProcess;
@@ -68,6 +66,10 @@ namespace SnesBonus.Views {
 
 		private void OnException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs){
 			_snesProcess.Kill();
+		}
+
+		~MainWindow(){
+			App.GamesDbChanged -= AppOnGamesDbChanged;
 		}
 	}
 }

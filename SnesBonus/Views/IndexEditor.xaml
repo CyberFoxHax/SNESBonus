@@ -1,6 +1,0 @@
-﻿<Window x:Class="SnesBonus.Views.IndexEditor"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="IndexEditor" Height="416" Width="434">
-    <DataGrid x:Name="DataGrid"></DataGrid>
-</Window>

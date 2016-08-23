@@ -7,7 +7,6 @@ namespace SnesBonus.Models{
 		public string	ImagePath		{ get; set; }
 		public string	Location		{ get; set; }
 		public string	FilePath		{ get; set; }
-		internal bool	IsScraped		{ get; set; }
 		public string	Description		{ get; set; }
 	}
 }

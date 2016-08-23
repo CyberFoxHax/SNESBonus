@@ -82,5 +82,28 @@ namespace SnesBonus.Properties {
                 this["ScraperTimeout"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoScrape {
+            get {
+                return ((bool)(this["AutoScrape"]));
+            }
+            set {
+                this["AutoScrape"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime BanTimestamp {
+            get {
+                return ((global::System.DateTime)(this["BanTimestamp"]));
+            }
+            set {
+                this["BanTimestamp"] = value;
+            }
+        }
     }
 }

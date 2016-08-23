@@ -7,12 +7,12 @@
         <Menu DockPanel.Dock="Top">
             <Menu.Items>
                 <MenuItem Header="File">
-                    <MenuItem Header="Settings..." Click="ChangeDirectories_Click" />
+                    <MenuItem Header="Save to disk" Click="SaveList_Click" />
+                    <MenuItem Header="Reload from disk" Click="ReloadList_Click" />
                 </MenuItem>
                 <MenuItem Header="Edit">
-                    <MenuItem Header="Save" Click="SaveList_Click" />
-                    <MenuItem Header="Reload" Click="ReloadList_Click" />
-                    <MenuItem Header="Edit Indexes" Click="EditIndexes_Click" />
+                    <MenuItem Header="Edit list" Click="EditIndexes_Click" />
+                    <MenuItem Header="Settings" Click="ChangeDirectories_Click" />
                 </MenuItem>
             </Menu.Items>
         </Menu>
