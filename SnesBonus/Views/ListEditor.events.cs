@@ -36,6 +36,8 @@ namespace SnesBonus.Views {
 				e.Row.Background = System.Windows.Media.Brushes.OrangeRed;
 			else if (System.IO.File.Exists(game.ImagePath) == false)
 				e.Row.Background = System.Windows.Media.Brushes.Orange;
+			else if(game.IsScraped == false)
+				e.Row.Background = System.Windows.Media.Brushes.DeepSkyBlue;
 			else
 				e.Row.Background = System.Windows.Media.Brushes.White;
 		}
@@ -44,10 +46,8 @@ namespace SnesBonus.Views {
 			Dispatcher.Invoke(ReloadJsonFromDisk);
 		}
 
-		protected override void OnClosed(System.EventArgs e) {
-			Focus();
-			DataGrid.CommitEdit();
-			_games.RemoveAll(p => p == null);
+		protected override void OnClosed(System.EventArgs e){
+			if (_games != null) _games.RemoveAll(p => p == null);
 			base.OnClosed(e);
 		}
 
@@ -83,7 +83,7 @@ namespace SnesBonus.Views {
 			if (game == null) return;
 
 			var scraper = new Scraper();
-			scraper.ScrapeSingle(game.FilePath);
+			scraper.QueueGame(game);
 		}
 
 		private void BtnEditRaw_Click(object sender, RoutedEventArgs e) {

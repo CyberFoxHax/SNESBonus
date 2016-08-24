@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SnesBonus.Views {
 	public partial class ListEditor {
@@ -12,7 +9,7 @@ namespace SnesBonus.Views {
 		}
 
 		private void ReloadJsonFromDisk() {
-			var newGames = Utils.LoadGamesFromJson();
+			var newGames = Models.Game.LoadGamesFromJson();
 			_games.Clear();
 			_games.AddRange(newGames);
 			RefreshGrid();

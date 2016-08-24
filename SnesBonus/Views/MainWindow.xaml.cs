@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
 namespace SnesBonus.Views {
 	public partial class MainWindow{
@@ -12,6 +10,7 @@ namespace SnesBonus.Views {
 		private static readonly string ProcessFile = Properties.SettingsHelper.ExecutableFile;
 
 		private List<Models.Game> _games = new List<Models.Game>();
+		private readonly Scraper _scraper = new Scraper();
 
 		public MainWindow() {
 			if (System.IO.Directory.Exists(ImageFolder) == false)
@@ -28,10 +27,30 @@ namespace SnesBonus.Views {
 			App.RomsDirChanged += AppOnRomsDirChanged;
 
 			AppOnRomsDirChanged();
+			_scraper.ScrapeEnd += ScraperOnScrapeEnd;
+			_scraper.StartScraping();
+		}
+
+		public new void Hide() {
+			_scraper.ScrapeEnd -= ScraperOnScrapeEnd;
+			App.GamesDbChanged -= AppOnGamesDbChanged;
+			App.RomsDirChanged -= AppOnRomsDirChanged;
+			base.Hide();
+		}
+
+		public new void Show() {
+			_scraper.ScrapeEnd -= ScraperOnScrapeEnd;
+			App.GamesDbChanged -= AppOnGamesDbChanged;
+			App.RomsDirChanged -= AppOnRomsDirChanged;
+
+			_scraper.ScrapeEnd += ScraperOnScrapeEnd;
+			App.GamesDbChanged += AppOnGamesDbChanged;
+			App.RomsDirChanged += AppOnRomsDirChanged;
+			base.Show();
 		}
 
 		public void LoadGamesList(){
-			_games = Utils.LoadGamesFromJson();
+			_games = Models.Game.LoadGamesFromJson();
 		}
 
 		private void EditGameOnGameSaved(Models.Game game){
@@ -39,10 +58,8 @@ namespace SnesBonus.Views {
 		}
 
 		private void RefreshGamesList(){
-			Dispatcher.Invoke(() =>{
-				DataGrid.ItemsSource = null;
-				DataGrid.ItemsSource = _games;
-			});
+			DataGrid.ItemsSource = null;
+			DataGrid.ItemsSource = _games;
 		}
 
 		private System.Diagnostics.Process _snesProcess;

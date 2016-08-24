@@ -11,8 +11,8 @@
                     <MenuItem Header="Reload from disk" Click="ReloadList_Click" />
                 </MenuItem>
                 <MenuItem Header="Edit">
-                    <MenuItem Header="Edit list" Click="EditIndexes_Click" />
-                    <MenuItem Header="Settings" Click="ChangeDirectories_Click" />
+                    <MenuItem Header="Edit list" Click="OpenEditor_Click" />
+                    <MenuItem Header="Settings" Click="Settings_Click" />
                 </MenuItem>
             </Menu.Items>
         </Menu>

@@ -88,5 +88,9 @@ namespace SnesBonus.Views {
 				TxtImagesFolder.Text = ParsePath(diag.FileNames.First());
 			Focus();
 		}
+
+		private void ThisFolder_Click(object sender, System.Windows.Input.MouseButtonEventArgs e){
+			System.Diagnostics.Process.Start(Environment.CurrentDirectory);
+		}
 	}
 }

@@ -13,20 +13,29 @@ namespace SnesBonus.Views {
 			else
 				return;
 
-			if (_games == null) return;
-			var existingNames = _games.Select(p => p.FilePath).ToArray();
+			Func<string, Models.Game> convert = p => 
+				new Models.Game{
+					FilePath = p,
+					Title = Models.Game.CleanGameName(p)
+				};
 
-			var newFiles = (
-				from file in files
-				where existingNames.Contains(file) == false
-				select new Models.Game {
-					FilePath = file,
-					Title = file
-				}
-			).ToList();
+			System.Collections.Generic.List<Models.Game> newGames;
+			if (_games != null) {
+				var existingNames = _games.Select(p => p.FilePath).ToArray();
+				newGames = (
+					from file in files
+					where existingNames.Contains(file) == false
+					select convert(file)
+					).ToList();
+				_games.AddRange(newGames);
+			}
+			else{
+				newGames = files.Select(convert).ToList();
+				_games = newGames;
+			}
 
-			_games.AddRange(newFiles);
 			Dispatcher.Invoke(RefreshGamesList);
+			_scraper.QueueGames(newGames);
 		}
 
 		private void AppOnGamesDbChanged() {
@@ -66,7 +75,9 @@ namespace SnesBonus.Views {
 		}
 
 		private void SaveList_Click(object sender, System.Windows.RoutedEventArgs e){
+			App.GamesDbChanged -= AppOnGamesDbChanged;
 			System.IO.File.WriteAllText(GamesDb, CsQuery.Utility.JSON.ToJSON(_games));
+			App.GamesDbChanged += AppOnGamesDbChanged;
 		}
 
 		private void ReloadList_Click(object sender, System.Windows.RoutedEventArgs e){
@@ -74,8 +85,8 @@ namespace SnesBonus.Views {
 			RefreshGamesList();
 		}
 
-		private void EditIndexes_Click(object sender, System.Windows.RoutedEventArgs e){
-			var editor = ListEditor.OpenEditor(_games);
+		private void OpenEditor_Click(object sender, System.Windows.RoutedEventArgs e){
+			var editor = ListEditor.OpenEditor(_games, _scraper);
 			editor.Closed += delegate{
 				RefreshGamesList();
 				Show();
@@ -84,8 +95,12 @@ namespace SnesBonus.Views {
 			editor.Show();
 		}
 
-		private void ChangeDirectories_Click(object sender, System.Windows.RoutedEventArgs e){
+		private void Settings_Click(object sender, System.Windows.RoutedEventArgs e){
 			new Settings().Show();
+		}
+
+		private void ScraperOnScrapeEnd(Models.Game game) {
+			Dispatcher.Invoke(RefreshGamesList);
 		}
 	}
 }

@@ -8,92 +8,82 @@ using CsQuery.ExtensionMethods;
 namespace SnesBonus {
 	public class Scraper {
 
-		public static readonly Dictionary<string, string[]> CachedResults = new Dictionary<string, string[]>();
-
 		private static DateTime _lastScrapeTime;
-
-		static Scraper(){
-			RomsFolder = Properties.SettingsHelper.RomsFolder;
-			ImageFolder = Properties.SettingsHelper.ImageFolder;
-		}
-
-		private static readonly string RomsFolder;
-		private static readonly string ImageFolder;
-
-		private readonly List<Models.Game> _games = new List<Models.Game>();
-
-		protected async void OnInitialized(EventArgs e) {
-			foreach (var game in _games.ToList()) {
-				var localFilePath = ImageFolder + game.ImagePath.CleanFileName();
-				if (System.IO.File.Exists(localFilePath))
-					game.ImagePath = localFilePath;
-				else {
-					game.ImagePath = await DownloadThumbnail(game.ImagePath);
-				}
-			}
-		}
+		private static readonly string ImageFolder = Properties.SettingsHelper.ImageFolder;
+		private static readonly int ScrapeTimeout = Properties.Settings.Default.ScraperTimeout;
+		public static readonly Dictionary<string, SearchResult[]> CachedSearchResults = new Dictionary<string, SearchResult[]>();
 
 		public event Action ScrapeBegin;
 		public event Action<Models.Game> ScrapeEnd;
+		private readonly List<Models.Game> _waitingGames = new List<Models.Game>();
+		private System.Threading.Thread _scraperThread;
 
-		public async void ScrapeDir() {
-			var gameNameRegex = new Regex("[a-z0-9-' \\.]+", RegexOptions.IgnoreCase);
+		public void StartScraping(){
+			if (_scraperThread != null) return;
+			_scraperThread = new System.Threading.Thread(Loop);
+			_scraperThread.Start();
+		}
 
-			string[] files;
-			if (System.IO.Directory.Exists(RomsFolder))
-				files = System.IO.Directory.GetFiles(RomsFolder);
-			else
-				files = new string[0];
-
-			var fileNames = files
-				.Select(p => p.Split('\\').Last())
-				.Select(p => p.Replace("." + p.Split('.').Last(), ""))
-				.Select(p => gameNameRegex.Match(p).Value.Trim())
-				.ToList();
-
-			fileNames.RemoveRange(0, _games.Count);
-
-			foreach (var gameName in fileNames) {
-				if (ScrapeBegin != null) ScrapeBegin();
-				var gather = await GetSearchResult(gameName);
-				var detail = await GetGameDetails(gather.First());
-				if (ScrapeEnd != null) ScrapeEnd(detail);
-				_games.Add(detail);
-				await Task.Delay(Properties.Settings.Default.ScraperTimeout);
+		protected async void DownloadImages(IEnumerable<Models.Game> games) {
+			foreach (var game in games.ToList()) {
+				var localFilePath = ImageFolder + game.ImagePath.CleanFileName();
+				if (System.IO.File.Exists(localFilePath))
+					game.ImagePath = localFilePath;
+				else
+					game.ImagePath = await DownloadThumbnail(game.ImagePath);
 			}
 		}
 
-		public async void ScrapeSingle(string file) {
-			var gameNameRegex = new Regex("[a-z0-9-' \\.]+", RegexOptions.IgnoreCase);
+		private async void Loop(){
+			if (DateTime.Now < _lastScrapeTime.AddMilliseconds(ScrapeTimeout)){
+				var timeToNext = ScrapeTimeout - (DateTime.Now - _lastScrapeTime).TotalMilliseconds;
+				await Task.Delay((int) timeToNext);
+			}
 
-			var funcs = new Func<string, string>[]{
-				p => p.Split('\\').Last(),
-				p => p.Replace("." + p.Split('.').Last(), ""),
-				p => gameNameRegex.Match(p).Value.Trim()
-			};
+			while (_waitingGames.Any()){
+				var game = _waitingGames.First();
 
-			var cleanName = funcs.Aggregate(file, (p, f) => f(p));
+				if (ScrapeBegin != null)
+					ScrapeBegin();
 
-			file = gameNameRegex.Match(file).Value.Trim();
+				var gather = await GetSearchResult(game.CleanGameName());
+				var dists = gather.Select(p => new {
+					Value = p,
+					Dist = Utils.LevenshteinDistance(game.Title, p.Text)
+				}).ToArray();
+				var best = dists.Min(p => p.Dist);
+				var target = dists.First(p => p.Dist == best);
 
-			var timeDifference = DateTime.Now - _lastScrapeTime;
-			if (timeDifference.TotalMilliseconds > Properties.Settings.Default.ScraperTimeout)
-				return;
-				//await Task.Delay();
+				var result = await GetGameDetails(target.Value.Href);
 
-			_lastScrapeTime = DateTime.Now;
+				if (System.IO.File.Exists(ImageFolder + result.ImagePath.CleanFileName()) == false && string.IsNullOrEmpty(result.ImagePath) == false)
+					result.ImagePath = await DownloadThumbnail(result.ImagePath);
 
+				result.FilePath = game.FilePath;
 
-			if (ScrapeBegin != null) ScrapeBegin();
-			var gather = await GetSearchResult(file);
-			var detail = await GetGameDetails(gather.First());
-			if (ScrapeEnd != null) ScrapeEnd(detail);
-			_games.Add(detail);
-			await Task.Delay(Properties.Settings.Default.ScraperTimeout);
+				if (ScrapeEnd != null)
+					ScrapeEnd(result.CopyTo(game));
+
+				_waitingGames.Remove(game);
+
+				_lastScrapeTime = DateTime.Now;
+				await Task.Delay(ScrapeTimeout);
+			}
+			_scraperThread = null;
 		}
 
-		public static async Task<string> DownloadThumbnail(string url) {
-			var request = new RequestHelper.RequestHandler<System.IO.Stream>(url) {
+		public void QueueGame(Models.Game game) {
+			_waitingGames.Add(game);
+			StartScraping();
+		}
+
+		public void QueueGames(IEnumerable<Models.Game> games) {
+			_waitingGames.AddRange(games);
+			StartScraping();
+		}
+
+		private static async Task<string> DownloadThumbnail(string url) {
+			var request = new RequestHelper.RequestHandler<System.IO.Stream>(url.Replace("_thumb", "_front")) {
 				ResponseContentType = RequestHelper.HttpContentType.Binary
 			};
 			await request.SendAwait();
@@ -110,9 +100,15 @@ namespace SnesBonus {
 			return ImageFolder + url.CleanFileName();
 		}
 
-		public static async Task<IEnumerable<string>> GetSearchResult(string gameName){
-			if (CachedResults.ContainsKey(gameName))
-				return CachedResults[gameName];
+
+		public class SearchResult{
+			public string Href { get; set; }
+			public string Text { get; set; }
+		}
+
+		private static async Task<IEnumerable<SearchResult>> GetSearchResult(string gameName){
+			if (CachedSearchResults.ContainsKey(gameName))
+				return CachedSearchResults[gameName];
 
 			var request = new RequestHelper.RequestHandler<string>(string.Format(
 				"http://www.gamefaqs.com/search/index.html?platform=63&game={0}&developer=&publisher=&res=1",
@@ -124,12 +120,16 @@ namespace SnesBonus {
 
 			const string prefixUrl = "http://www.gamefaqs.com/";
 
-			var result = doc["td.rtitle > a"].Select(p => prefixUrl + p.GetAttribute("href")).ToArray();
-			CachedResults[gameName] = result;
-			return result;
+			var res = doc["td.rtitle > a"].Select(p => new SearchResult{
+				Href = prefixUrl + p.GetAttribute("href"),
+				Text = p.InnerText
+			}).ToArray();
+
+			CachedSearchResults[gameName] = res;
+			return res;
 		}
 
-		public static async Task<Models.Game> GetGameDetails(string url) {
+		private static async Task<Models.Game> GetGameDetails(string url) {
 			var request = new RequestHelper.RequestHandler<string>(url);
 
 			await request.SendAwait();
@@ -145,6 +145,8 @@ namespace SnesBonus {
 			newGame.Publisher = doc[".pod_gameinfo > div:nth-child(2) > ul:nth-child(1) > li:nth-child(3) > a:nth-child(1)"].FirstElement().InnerText;
 			newGame.ReleaseDate = doc[".pod_gameinfo > div:nth-child(2) > ul:nth-child(1) > li:nth-child(4) > a:nth-child(2)"].FirstElement().InnerText;
 			newGame.Location = url;
+
+			newGame.ReleaseDate = newGame.ReleaseDate.Replace("&#187;", "");
 
 			return newGame;
 		}

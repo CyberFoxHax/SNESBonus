@@ -14,12 +14,14 @@ namespace SnesBonus.Views {
 			App.RomsDirChanged -= AppOnRomsDirChanged;
 		}
 
+		private Scraper _scraper;
 		private List<Models.Game> _games;
 
-		public static ListEditor OpenEditor(List<Models.Game> games) {
+		public static ListEditor OpenEditor(List<Models.Game> games, Scraper scraper) {
 			var editor = new ListEditor {
 				DataGrid = { ItemsSource = games },
-				_games = games
+				_games = games,
+				_scraper = scraper
 			};
 			return editor;
 		}
