@@ -18,11 +18,31 @@ namespace SnesBonus.Models{
 			p.MetacriticScore	= MetacriticScore	;
 			p.Publisher			= Publisher			;
 			p.ReleaseDate		= ReleaseDate		;
-			p.ImagePath			= ImagePath			;
+		//	p.ImagePath			= ImagePath			;
 			p.Location			= Location			;
-			p.FilePath			= FilePath			;
+		//	p.FilePath			= FilePath			;
 			p.Description		= Description		;
 			return this;
+		}
+
+
+		private static readonly Regex NumberRegex = new Regex("[0-9]+", RegexOptions.IgnoreCase);
+		public static string NumberToRomanNumerals(string input){
+			var match = NumberRegex.Match(input).Value;
+			var matchAsNumber = int.Parse(match);
+			switch (matchAsNumber){
+				case  1: return input.Replace(match, "I");
+				case  2: return input.Replace(match, "II");
+				case  3: return input.Replace(match, "III");
+				case  4: return input.Replace(match, "IV");
+				case  5: return input.Replace(match, "V");
+				case  6: return input.Replace(match, "VI");
+				case  7: return input.Replace(match, "VII");
+				case  8: return input.Replace(match, "VIII");
+				case  9: return input.Replace(match, "IX");
+				case 10: return input.Replace(match, "X");
+			} // FUCKIT XD
+			return null;
 		}
 
 		internal bool ImageIsLocal {

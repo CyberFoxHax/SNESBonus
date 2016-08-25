@@ -46,15 +46,13 @@ namespace SnesBonus.Views {
 			_scraper.ScrapeEnd += ScraperOnScrapeEnd;
 			App.GamesDbChanged += AppOnGamesDbChanged;
 			App.RomsDirChanged += AppOnRomsDirChanged;
+
 			base.Show();
+			RefreshGamesList();
 		}
 
 		public void LoadGamesList(){
 			_games = Models.Game.LoadGamesFromJson();
-		}
-
-		private void EditGameOnGameSaved(Models.Game game){
-			RefreshGamesList();
 		}
 
 		private void RefreshGamesList(){
@@ -64,9 +62,12 @@ namespace SnesBonus.Views {
 
 		private System.Diagnostics.Process _snesProcess;
 		private void OpenGame(){
+			var game = DataGrid.SelectedItem as Models.Game;
+			if (game == null) return;
+
 			var processStartInfo = new System.Diagnostics.ProcessStartInfo(
 				ProcessFile,
-				string.Format("\"{0}\"", ((Models.Game)DataGrid.SelectedItem).FilePath) + " -fullscreen"
+				string.Format("\"{0}\"", game.FilePath) + " -fullscreen"
 			);
 
 			var process = System.Diagnostics.Process.Start(processStartInfo);
@@ -79,10 +80,6 @@ namespace SnesBonus.Views {
 				Dispatcher.Invoke(Show);
 				AppDomain.CurrentDomain.UnhandledException -= OnException;
 			};
-		}
-
-		private void OnException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs){
-			_snesProcess.Kill();
 		}
 
 		~MainWindow(){

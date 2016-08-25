@@ -1,30 +1,16 @@
 ﻿using System.Windows;
 using System.Linq;
+using System;
 
 namespace SnesBonus.Views {
 	public partial class ListEditor {
 		private void AppOnRomsDirChanged() {
-			var romsFolder = Properties.SettingsHelper.RomsFolder;
-
-			string[] files;
-			if (System.IO.Directory.Exists(romsFolder))
-				files = System.IO.Directory.GetFiles(romsFolder);
-			else
-				return;
-
-			var existingNames = _games.Select(p => p.FilePath).ToArray();
-
-			var newFiles = (
-				from file in files
-				where existingNames.Contains(file) == false
-				select new Models.Game {
-					FilePath = file,
-					Title = file
-				}
-			).ToList();
-
-			_games.AddRange(newFiles);
-			Dispatcher.Invoke(RefreshGrid);
+			var newGames = Utils.CheckRomsDirForNew(ref _games);
+			if(newGames.Any()){
+				Dispatcher.Invoke(RefreshGrid);
+				if (Properties.Settings.Default.AutoScrape)
+					_scraper.QueueGames(newGames);
+			}
 		}
 
 		private static void DataGridOnLoadingRow(object sender, System.Windows.Controls.DataGridRowEventArgs e) {
@@ -46,8 +32,40 @@ namespace SnesBonus.Views {
 			Dispatcher.Invoke(ReloadJsonFromDisk);
 		}
 
-		protected override void OnClosed(System.EventArgs e){
+		private void TimerOnElapsed(object s, System.Timers.ElapsedEventArgs elapsedEventArgs) {
+			Func<TimeSpan> calcRemainder;
+			bool isBanned;
+			if (Properties.Settings.Default.BanTimestamp != default(DateTime)){
+				isBanned = true;
+				calcRemainder = () =>
+					DateTime.Now - Properties.Settings.Default.BanTimestamp.AddHours(24);
+			}
+			else if (Scraper.LastScrapeTime != default(DateTime)){
+				isBanned = false;
+				calcRemainder = () =>
+					DateTime.Now - Scraper.LastScrapeTime.AddMilliseconds(Properties.Settings.Default.ScraperTimeout);
+			}
+			else{
+				isBanned = false;
+				calcRemainder = () => new TimeSpan(0);
+			}
+			Dispatcher.Invoke(() =>{
+				LblBanMsg.Visibility     = isBanned			? Visibility.Visible : Visibility.Collapsed;
+				LblTimeoutMsg.Visibility = isBanned==false	? Visibility.Visible : Visibility.Collapsed;
+
+				var remainder = calcRemainder();
+				if(remainder.TotalMilliseconds>0)
+					LblTimer.Content = "Ready";
+				else
+					LblTimer.Content = remainder.ToString().Split('.')[0];
+			});
+		}
+
+		protected override void OnClosed(EventArgs e){
 			if (_games != null) _games.RemoveAll(p => p == null);
+			_timer.Stop();
+			_timer.Dispose();
+			DataGrid.IsReadOnly = true;
 			base.OnClosed(e);
 		}
 
@@ -57,7 +75,7 @@ namespace SnesBonus.Views {
 
 			LblGameName.Content = game.Title;
 			if (string.IsNullOrEmpty(game.ImagePath) == false)
-				ImgGameCover.Source = new System.Windows.Media.Imaging.BitmapImage(new System.Uri(game.ImagePath));
+				ImgGameCover.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(game.ImagePath));
 		}
 
 		private void BtnMoveUp_Click(object sender, RoutedEventArgs e) {
@@ -78,30 +96,69 @@ namespace SnesBonus.Views {
 			DataGrid.SelectedIndex = newIndex;
 		}
 
-		private void BtnRescrape_Click(object sender, RoutedEventArgs e) {
+		private async void BtnRescrape_Click(object sender, RoutedEventArgs e) {
 			var game = DataGrid.SelectedItem as Models.Game;
 			if (game == null) return;
 
-			var scraper = new Scraper();
-			scraper.QueueGame(game);
+			IsEnabled = false;
+
+			var newResult = await Scraper.GetSearchResult(game.Title);
+			if (newResult == null && Properties.Settings.Default.BanTimestamp != default(DateTime)){
+				IsEnabled = true;
+				return;
+			}
+			var pickerResult = await ResultPicker.AwaitPick(newResult);
+			if (pickerResult != null){
+				var result = await Scraper.GetGameDetails(pickerResult.Href);
+
+				var imagePath = Properties.SettingsHelper.ImageFolder + result.ImagePath.CleanFileName();
+				if (System.IO.File.Exists(imagePath))
+					game.ImagePath = imagePath;
+				else if (string.IsNullOrEmpty(result.ImagePath) == false)
+					game.ImagePath = await Scraper.DownloadImage(result.ImagePath);
+
+				result.CopyTo(game);
+				RefreshGrid();
+			}
+
+			IsEnabled = true;
 		}
 
 		private void BtnEditRaw_Click(object sender, RoutedEventArgs e) {
 			var file = Properties.SettingsHelper.GamesDb;
 
-			// todo format json before opening it
-
-			//var jsonData = Utils.LoadGamesFromJson();
-			//System.IO.File.WriteAllText(file, CsQuery.Utility.JSON.ToJSON(jsonData));
+			var text = CsQuery.Utility.JSON.ToJSON(Models.Game.LoadGamesFromJson());
+			System.IO.File.WriteAllText(file, Lib.JsonHelper.FormatJson(text));
 
 			var processInfo = new System.Diagnostics.ProcessStartInfo(file) { Verb = "openas" };
 			try {
 				System.Diagnostics.Process.Start(processInfo);
 			}
-			catch (System.Exception) {
+			catch (Exception) {
 				processInfo.Verb = null;
 				System.Diagnostics.Process.Start(processInfo);
 			}
+		}
+
+		private void BanMsg_OnMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e){
+			System.Diagnostics.Process.Start("http://gamefaqs.com/");
+		}
+
+		private void ScraperOnScrapeBegin(){
+			Dispatcher.Invoke(() =>{
+				IsEnabled = false;
+				DataGrid.CommitEdit();
+			});
+		}
+
+		private void ScraperOnScrapeEnd(Models.Game game) {
+			Dispatcher.Invoke(() =>{
+				RefreshGrid();
+				IsEnabled = true;
+			});
+			App.GamesDbChanged -= AppOnGamesDbChanged;
+			System.IO.File.WriteAllText(Properties.SettingsHelper.GamesDb, CsQuery.Utility.JSON.ToJSON(_games));
+			App.GamesDbChanged += AppOnGamesDbChanged;
 		}
 	}
 }

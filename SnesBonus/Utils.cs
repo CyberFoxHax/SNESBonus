@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SnesBonus {
 	internal static class Utils {
@@ -26,11 +24,43 @@ namespace SnesBonus {
 				numArray[0, num4] = num4++;
 			for (var i = 1; i <= length; i++)
 				for (var j = 1; j <= num2; j++) {
-					var num7 = (t[j - 1] == s[i - 1]) ? 0 : 1;
+					var num7 = t[j - 1] == s[i - 1] ? 0 : 1;
 					numArray[i, j] = Math.Min(Math.Min(numArray[i - 1, j] + 1, numArray[i, j - 1] + 1), numArray[i - 1, j - 1] + num7);
 				}
 			return numArray[length, num2];
 		}
 
+		public static List<Models.Game> CheckRomsDirForNew(ref List<Models.Game> games){
+			var romsFolder = Properties.SettingsHelper.RomsFolder;
+
+			string[] files;
+			if (System.IO.Directory.Exists(romsFolder))
+				files = System.IO.Directory.GetFiles(romsFolder);
+			else
+				return null;
+
+			Func<string, Models.Game> convert = p =>
+				new Models.Game {
+					FilePath = p,
+					Title = Models.Game.CleanGameName(p)
+				};
+
+			List<Models.Game> newGames;
+			if (games != null) {
+				var existingNames = games.Select(p => p.FilePath.ToLower()).ToArray();
+				newGames = (
+					from file in files
+					where existingNames.Contains(file.ToLower()) == false
+					select convert(file)
+				).ToList();
+				games.AddRange(newGames);
+			}
+			else {
+				newGames = files.Select(convert).ToList();
+				games = newGames;
+			}
+
+			return newGames;
+		}
 	}
 }

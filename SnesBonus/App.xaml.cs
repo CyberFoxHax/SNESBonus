@@ -43,11 +43,13 @@ namespace SnesBonus {
 
 
 		public static event System.Action RomsDirChanged;
-		private static async void RomsDirWatcher_OnChanged(object sender, FileSystemEventArgs e){
+		private static async void RomsDirWatcher_OnChanged(object sender, FileSystemEventArgs e) {
 			if (RomsDirChanged == null) return;
 
 			await System.Threading.Tasks.Task.Delay(100);
-			RomsDirChanged();
+			lock (RomsDirChanged) {
+				RomsDirChanged();
+			}
 		}
 
 		public static event System.Action GamesDbChanged;

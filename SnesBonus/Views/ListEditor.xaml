@@ -12,8 +12,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Label x:Name="LblGameName" Content=" {GameName}" FontWeight="Black" HorizontalAlignment="Left" Width="172" Height="27" VerticalAlignment="Top"/>
-        <Label Content="Time till next scrape" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="122" Height="27" VerticalAlignment="Top"/>
-        <Label Content="1m 23s" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="58" Height="27" VerticalAlignment="Top" Margin="0,27,0,0"/>
+        <Label x:Name="LblTimeoutMsg" Content="Time till next scrape" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="122" Height="27" VerticalAlignment="Top"/>
+        <Label x:Name="LblBanMsg" MouseUp="BanMsg_OnMouseUp" Content="You've been suspended for 24 hours" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="205" Height="27" VerticalAlignment="Top" Margin="0,0,10,0"/>
+        <Label x:Name="LblTimer" HorizontalContentAlignment="Right" Content="00:00:00" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="60" Height="27" VerticalAlignment="Top" Margin="0,27,10,0"/>
         <UniformGrid Grid.Row="0" Grid.Column="0" Height="56" VerticalAlignment="Bottom">
             <Button Content="Edit Raw" Click="BtnEditRaw_Click"></Button>
             <Button Content="Move up" Click="BtnMoveUp_Click"></Button>

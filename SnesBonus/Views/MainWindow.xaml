@@ -27,7 +27,7 @@
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>
-                <GridView>
+                <GridView AllowsColumnReorder="True">
                     <GridViewColumn Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

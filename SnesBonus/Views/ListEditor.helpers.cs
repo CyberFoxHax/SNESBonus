@@ -5,6 +5,7 @@ namespace SnesBonus.Views {
 	public partial class ListEditor {
 		private void RefreshGrid() {
 			DataGrid.ItemsSource = null;
+			_games.RemoveAll(p => p == null);
 			DataGrid.ItemsSource = _games;
 		}
 

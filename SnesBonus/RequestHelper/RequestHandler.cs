@@ -184,6 +184,11 @@ namespace SnesBonus.RequestHelper {
 				var resp = webReq.GetResponse();
 				webResp = (HttpWebResponse)resp;
 			}
+			catch (WebException e){
+				webResp = (HttpWebResponse) e.Response;
+				OnFailException = e;
+				RequestCompletedStatus = CompletionStatus.Error;
+			}
 			catch (Exception e) {
 				OnFailException = e;
 				RequestCompletedStatus = CompletionStatus.Error;
@@ -196,7 +201,7 @@ namespace SnesBonus.RequestHelper {
 				RawResponseStream = webResp.GetResponseStream();
 
 			if (Dispatcher != null)
-				Dispatcher.Invoke((Action)InvokeEvents);
+				Dispatcher.Invoke(InvokeEvents);
 			else
 				InvokeEvents();
 		}

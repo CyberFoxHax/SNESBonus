@@ -93,6 +93,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\ResultPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -117,6 +121,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Lib\FilterConverter.cs" />
+    <Compile Include="Lib\JsonHelper.cs" />
     <Compile Include="RequestHelper\CompletionStatus.cs" />
     <Compile Include="RequestHelper\HttpContentType.cs" />
     <Compile Include="RequestHelper\HttpRequestMethod.cs" />
@@ -132,6 +138,9 @@
     <Compile Include="Models\Game.cs" />
     <Compile Include="Views\ListEditor.events.cs" />
     <Compile Include="Views\ListEditor.helpers.cs" />
+    <Compile Include="Views\ResultPicker.xaml.cs">
+      <DependentUpon>ResultPicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>

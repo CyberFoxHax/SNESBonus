@@ -14,7 +14,7 @@ namespace SnesBonus.Views {
 
 		public event Action<Models.Game> GameSaved;
 
-		public static EditGame OpenEditor(Models.Game game){
+		public static EditGame GetInstance(Models.Game game){
 			if (Editors.ContainsKey(game)){
 				Editors[game].Focus();
 				return Editors[game];
