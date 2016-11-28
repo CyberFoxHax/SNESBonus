@@ -15,7 +15,7 @@ namespace SnesBonus.Views {
 
 		private void AppOnGamesDbChanged() {
 			LoadGamesList();
-			RefreshGamesList();
+			Dispatcher.Invoke(RefreshGamesList);
 		}
 
 		private void EditMenu_OnClick(object sender, System.Windows.RoutedEventArgs e){

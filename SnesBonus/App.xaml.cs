@@ -3,6 +3,7 @@
 namespace SnesBonus {
 	public partial class App{
 		public App(){
+			SnesBonus.Properties.SettingsHelper.Load();
 			{
 				var file = SnesBonus.Properties.SettingsHelper.GamesDb;
 				if (File.Exists(file) == false)
@@ -35,10 +36,6 @@ namespace SnesBonus {
 				watcher.Renamed += RomsDirWatcher_OnChanged;
 				watcher.EnableRaisingEvents = true;
 			}
-
-#if DEBUG
-			SnesBonus.Properties.Settings.Default.Reset();
-#endif
 		}
 
 

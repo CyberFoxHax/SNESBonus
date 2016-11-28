@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SnesBonus.Views {
 	public partial class MainWindow{
@@ -29,6 +28,8 @@ namespace SnesBonus.Views {
 			AppOnRomsDirChanged();
 			_scraper.ScrapeEnd += ScraperOnScrapeEnd;
 			_scraper.StartScraping();
+
+			DataGrid.Focus();
 		}
 
 		public new void Hide() {

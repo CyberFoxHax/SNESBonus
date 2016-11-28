@@ -174,9 +174,9 @@ namespace SnesBonus {
 
 			var blocked = IsBlocked(doc);
 			if (blocked) {
-				if (Properties.Settings.Default.BanTimestamp == default(DateTime)){
-					Properties.Settings.Default.BanTimestamp = DateTime.Now;
-					Properties.Settings.Default.Save();
+				if (Properties.SettingsHelper.BanTimestamp == default(DateTime)){
+					Properties.SettingsHelper.BanTimestamp = DateTime.Now;
+					Properties.SettingsHelper.Save();
 				}
 				return null;
 			}

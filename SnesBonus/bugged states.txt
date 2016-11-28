@@ -1,0 +1,5 @@
+open with new item in dir will crash after scrape with the file saved successfully tho
+
+start up with a list that contains null fields will crash the application on load
+
+adding 2 games at once will trip both states

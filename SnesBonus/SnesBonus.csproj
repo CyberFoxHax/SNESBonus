@@ -206,7 +206,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\snes.ico" />
+    <Resource Include="Resources\snes.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\thumbTest.jpg" />
