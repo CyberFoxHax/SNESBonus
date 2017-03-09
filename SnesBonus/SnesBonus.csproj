@@ -133,7 +133,7 @@
     <Compile Include="RequestHelper\RequestHandler.cs" />
     <Compile Include="RequestHelper\RunningStatus.cs" />
     <Compile Include="Scraper.cs" />
-    <Compile Include="Properties\SettingsHelper.cs" />
+    <Compile Include="SettingsHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Views\ListEditor.events.cs" />

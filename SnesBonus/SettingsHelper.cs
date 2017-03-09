@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SnesBonus.Properties {
+﻿namespace SnesBonus {
 	public static class SettingsHelper{
 		private static readonly string Path = System.Environment.CurrentDirectory;
 		private static readonly string JsonPath = Path + "\\Settings.json";
@@ -26,7 +24,7 @@ namespace SnesBonus.Properties {
 				BanTimestamp = _banTimestamp
 			};
 
-			System.IO.File.WriteAllText(JsonPath, CsQuery.Utility.JSON.ToJSON(saveObj));
+			System.IO.File.WriteAllText(JsonPath, Lib.JsonHelper.FormatJson(CsQuery.Utility.JSON.ToJSON(saveObj)));
 		}
 
 		public static void Load(){
@@ -52,17 +50,21 @@ namespace SnesBonus.Properties {
 			_gamesDb		= @"{this}\GamesDB.json";
 			_romsFolder		= @"{this}\Roms\";
 			_imageFolder	= @"{this}\Thumbnails\";
-			_executableFile = @"E:\Software\Games\Emulator\snes9x-1.53-win32\snes9x.exe";
+			_executableFile = @"{this}\snes9x.exe";
 			_scraperTimeout = 50000;
 			_autoScrape		= true;
 			_banTimestamp   = default(System.DateTime);
 		}
 
-		private static string ParseOut(string inStr){
-			return inStr.Replace("{this}", Path);
-		}
+        private static string ParseOut(string inStr) {
+            return inStr.Replace("{this}", Path);
+        }
 
-		private static string _gamesDb;
+        private static string ParseIn(string inStr) {
+            return inStr.Replace(Path, "{this}");
+        }
+
+        private static string _gamesDb;
 		private static string _romsFolder;
 		private static string _imageFolder;
 		private static string _executableFile;
@@ -73,25 +75,25 @@ namespace SnesBonus.Properties {
 		public static string GamesDb
 		{
 			get { return ParseOut(_gamesDb); }
-			set { _gamesDb = value; }
+			set { _gamesDb = ParseIn(value); }
 		}
 
 		public static string RomsFolder
 		{
 			get { return ParseOut(_romsFolder); }
-			set { _romsFolder = value; }
+			set { _romsFolder = ParseIn(value); }
 		}
 
 		public static string ImageFolder
 		{
 			get { return ParseOut(_imageFolder); }
-			set { _imageFolder = value; }
+			set { _imageFolder = ParseIn(value); }
 		}
 
 		public static string ExecutableFile
 		{
 			get { return ParseOut(_executableFile); }
-			set { _executableFile = value; }
+			set { _executableFile = ParseIn(value); }
 		}
 
 		public static int ScraperTimeout

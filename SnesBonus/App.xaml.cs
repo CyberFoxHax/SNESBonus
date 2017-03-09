@@ -3,9 +3,9 @@
 namespace SnesBonus {
 	public partial class App{
 		public App(){
-			SnesBonus.Properties.SettingsHelper.Load();
+			SettingsHelper.Load();
 			{
-				var file = SnesBonus.Properties.SettingsHelper.GamesDb;
+				var file = SettingsHelper.GamesDb;
 				if (File.Exists(file) == false)
 					File.CreateText(file).Close();
 
@@ -18,7 +18,7 @@ namespace SnesBonus {
 				watcher.EnableRaisingEvents = true;
 			}
 			{
-				var dir = SnesBonus.Properties.SettingsHelper.RomsFolder;
+				var dir = SettingsHelper.RomsFolder;
 				if (Directory.Exists(dir) == false)
 					Directory.CreateDirectory(dir);
 

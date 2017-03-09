@@ -7,14 +7,20 @@ using System.Windows;
 
 namespace SnesBonus.Views {
 	public partial class Settings {
+		private static readonly string Path = System.Environment.CurrentDirectory;
+
+	    private static string ParseIn(string inStr) {
+	        return inStr.Replace(Path, "{this}");
+	    }
+
 		public Settings() {
-			InitializeComponent();
-			TxtGamesDb.Text			= Properties.SettingsHelper.GamesDb;
-			TxtRomsFolder.Text		= Properties.SettingsHelper.RomsFolder;
-			TxtImagesFolder.Text	= Properties.SettingsHelper.ImageFolder;
-			TxtExecutable.Text		= Properties.SettingsHelper.ExecutableFile;
-			TxtScraperInterval.Text = Properties.SettingsHelper.ScraperTimeout + "";
-			BoolAutoScrape.IsChecked= Properties.SettingsHelper.AutoScrape;
+            InitializeComponent();
+			TxtGamesDb.Text			= ParseIn(SettingsHelper.GamesDb);
+			TxtRomsFolder.Text		= ParseIn(SettingsHelper.RomsFolder);
+			TxtImagesFolder.Text	= ParseIn(SettingsHelper.ImageFolder);
+			TxtExecutable.Text		= ParseIn(SettingsHelper.ExecutableFile);
+			TxtScraperInterval.Text = SettingsHelper.ScraperTimeout + "";
+			BoolAutoScrape.IsChecked= SettingsHelper.AutoScrape;
 		}
 
 		private void CloseBtn_Click(object sender, RoutedEventArgs e){
@@ -22,15 +28,15 @@ namespace SnesBonus.Views {
 		}
 
 		private void SaveBtn_Click(object sender, RoutedEventArgs e){
-			Properties.SettingsHelper.GamesDb			= TxtGamesDb.Text;
-			Properties.SettingsHelper.RomsFolder		= TxtRomsFolder.Text;
-			Properties.SettingsHelper.ImageFolder		= TxtImagesFolder.Text;
-			Properties.SettingsHelper.ExecutableFile	= TxtExecutable.Text;
-			Properties.SettingsHelper.AutoScrape		= BoolAutoScrape.IsChecked==true;
-			Properties.SettingsHelper.Save();
+			SettingsHelper.GamesDb			= TxtGamesDb.Text;
+			SettingsHelper.RomsFolder		= TxtRomsFolder.Text;
+			SettingsHelper.ImageFolder		= TxtImagesFolder.Text;
+			SettingsHelper.ExecutableFile	= TxtExecutable.Text;
+			SettingsHelper.AutoScrape		= BoolAutoScrape.IsChecked==true;
+			SettingsHelper.Save();
 			int intout;
 			if (int.TryParse(TxtScraperInterval.Text, out intout))
-				Properties.Settings.Default.ScraperTimeout = intout;
+                SettingsHelper.ScraperTimeout = intout;
 
 			Properties.Settings.Default.Save();
 			Close();
@@ -48,7 +54,7 @@ namespace SnesBonus.Views {
 			var diag = new OpenFileDialog{
 				Filter = "Bacon|*.exe",
 				CustomPlaces = CustomPlaces,
-				InitialDirectory = System.IO.Path.GetDirectoryName(Properties.SettingsHelper.ExecutableFile)
+				InitialDirectory = System.IO.Path.GetDirectoryName(SettingsHelper.ExecutableFile)
 			};
 			if (diag.ShowDialog() == true){
 				TxtExecutable.Text = ParsePath(diag.FileNames.First());
@@ -60,7 +66,7 @@ namespace SnesBonus.Views {
 			var diag = new OpenFileDialog{
 				Filter = "bacon|*.json",
 				CustomPlaces = CustomPlaces,
-				InitialDirectory = System.IO.Path.GetDirectoryName(Properties.SettingsHelper.GamesDb)
+				InitialDirectory = System.IO.Path.GetDirectoryName(SettingsHelper.GamesDb)
 			};
 			if (diag.ShowDialog() == true)
 				TxtGamesDb.Text = ParsePath(diag.FileNames.First());
@@ -70,7 +76,7 @@ namespace SnesBonus.Views {
 		private void RomsFolderBrowse_Click(object sender, RoutedEventArgs e) {
 			var diag = new CommonOpenFileDialog {
 				IsFolderPicker = true,
-				InitialDirectory = Properties.SettingsHelper.RomsFolder
+				InitialDirectory = SettingsHelper.RomsFolder
 			};
 			diag.AddPlace(Environment.CurrentDirectory, 0);
 			if (diag.ShowDialog() == CommonFileDialogResult.Ok)
@@ -81,7 +87,7 @@ namespace SnesBonus.Views {
 		private void ImagesFolderBrowse_Click(object sender, RoutedEventArgs e){
 			var diag = new CommonOpenFileDialog{
 				IsFolderPicker = true,
-				InitialDirectory = Properties.SettingsHelper.ImageFolder
+				InitialDirectory = SettingsHelper.ImageFolder
 			};
 			diag.AddPlace(Environment.CurrentDirectory, 0);
 			if (diag.ShowDialog() == CommonFileDialogResult.Ok)

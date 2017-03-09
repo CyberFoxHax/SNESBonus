@@ -6,10 +6,11 @@ namespace SnesBonus {
 	internal static class Utils {
 
 		public static string CleanFileName(this string fileName) {
-			return System.IO.Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
+		    if (fileName == null) return null;
+		    return System.IO.Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
 		}
 
-		public static int LevenshteinDistance(string s, string t) {
+	    public static int LevenshteinDistance(string s, string t) {
 			var length = s.Length;
 			var num2 = t.Length;
 			var numArray = new int[length + 1, num2 + 1];
@@ -31,7 +32,7 @@ namespace SnesBonus {
 		}
 
 		public static List<Models.Game> CheckRomsDirForNew(ref List<Models.Game> games){
-			var romsFolder = Properties.SettingsHelper.RomsFolder;
+			var romsFolder = SettingsHelper.RomsFolder;
 
 			string[] files;
 			if (System.IO.Directory.Exists(romsFolder))
@@ -47,7 +48,7 @@ namespace SnesBonus {
 
 			List<Models.Game> newGames;
 			if (games != null) {
-				var existingNames = games.Select(p => p.FilePath.ToLower()).ToArray();
+				var existingNames = games.Select(p => p.FullFilePath.ToLower()).ToArray();
 				newGames = (
 					from file in files
 					where existingNames.Contains(file.ToLower()) == false

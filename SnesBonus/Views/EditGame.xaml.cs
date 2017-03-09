@@ -27,7 +27,8 @@ namespace SnesBonus.Views {
 		}
 
 		private void ModelToView(Models.Game game){
-			Image.Source = new BitmapImage(new Uri(game.ImagePath));
+            if(game.ImagePath != null)
+			    Image.Source = new BitmapImage(new Uri(game.FullImagePath));
 
 			Title						= game.Title;
 			TxtTitle			.Text	= game.Title			;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using SnesBonus.Models;
 
 namespace SnesBonus.Views {
 	public partial class MainWindow {
@@ -8,7 +9,7 @@ namespace SnesBonus.Views {
 			var newGames = Utils.CheckRomsDirForNew(ref _games);
 			if (newGames.Any()){
 				Dispatcher.Invoke(RefreshGamesList);
-				if (Properties.Settings.Default.AutoScrape)
+				if (SettingsHelper.AutoScrape == true)
 					_scraper.QueueGames(newGames);
 			}
 		}
@@ -50,7 +51,7 @@ namespace SnesBonus.Views {
 
 		private void SaveList_Click(object sender, System.Windows.RoutedEventArgs e){
 			App.GamesDbChanged -= AppOnGamesDbChanged;
-			System.IO.File.WriteAllText(GamesDb, CsQuery.Utility.JSON.ToJSON(_games));
+            Game.SaveGamesToJson(_games);
 			App.GamesDbChanged += AppOnGamesDbChanged;
 		}
 
@@ -76,7 +77,7 @@ namespace SnesBonus.Views {
 		private void ScraperOnScrapeEnd(Models.Game game) {
 			Dispatcher.Invoke(RefreshGamesList);
 			App.GamesDbChanged -= AppOnGamesDbChanged;
-			System.IO.File.WriteAllText(GamesDb, CsQuery.Utility.JSON.ToJSON(_games));
+            Game.SaveGamesToJson(_games);
 			App.GamesDbChanged += AppOnGamesDbChanged;
 		}
 

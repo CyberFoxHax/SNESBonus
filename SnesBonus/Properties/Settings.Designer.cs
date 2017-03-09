@@ -12,7 +12,7 @@ namespace SnesBonus.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,89 +20,6 @@ namespace SnesBonus.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{this}\\GamesDB.json")]
-        public string GamesDb {
-            get {
-                return ((string)(this["GamesDb"]));
-            }
-            set {
-                this["GamesDb"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{this}\\Roms\\")]
-        public string RomsFolder {
-            get {
-                return ((string)(this["RomsFolder"]));
-            }
-            set {
-                this["RomsFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{this}\\Thumbnails\\")]
-        public string ImageFolder {
-            get {
-                return ((string)(this["ImageFolder"]));
-            }
-            set {
-                this["ImageFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("E:\\Software\\Games\\Emulator\\snes9x-1.53-win32\\snes9x.exe")]
-        public string ExecutableFile {
-            get {
-                return ((string)(this["ExecutableFile"]));
-            }
-            set {
-                this["ExecutableFile"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50000")]
-        public int ScraperTimeout {
-            get {
-                return ((int)(this["ScraperTimeout"]));
-            }
-            set {
-                this["ScraperTimeout"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool AutoScrape {
-            get {
-                return ((bool)(this["AutoScrape"]));
-            }
-            set {
-                this["AutoScrape"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.DateTime BanTimestamp {
-            get {
-                return ((global::System.DateTime)(this["BanTimestamp"]));
-            }
-            set {
-                this["BanTimestamp"] = value;
             }
         }
     }

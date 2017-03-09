@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Linq;
 using System;
+using SnesBonus.Models;
 
 namespace SnesBonus.Views {
 	public partial class ListEditor {
@@ -8,7 +9,7 @@ namespace SnesBonus.Views {
 			var newGames = Utils.CheckRomsDirForNew(ref _games);
 			if(newGames.Any()){
 				Dispatcher.Invoke(RefreshGrid);
-				if (Properties.Settings.Default.AutoScrape)
+				if (SettingsHelper.AutoScrape == true)
 					_scraper.QueueGames(newGames);
 			}
 		}
@@ -18,9 +19,9 @@ namespace SnesBonus.Views {
 			if (game == null)
 				return;
 
-			if (System.IO.File.Exists(game.FilePath) == false)
+			if (System.IO.File.Exists(game.FullFilePath) == false)
 				e.Row.Background = System.Windows.Media.Brushes.OrangeRed;
-			else if (System.IO.File.Exists(game.ImagePath) == false)
+			else if (System.IO.File.Exists(game.FullImagePath) == false)
 				e.Row.Background = System.Windows.Media.Brushes.Orange;
 			else if(game.IsScraped == false)
 				e.Row.Background = System.Windows.Media.Brushes.DeepSkyBlue;
@@ -35,15 +36,15 @@ namespace SnesBonus.Views {
 		private void TimerOnElapsed(object s, System.Timers.ElapsedEventArgs elapsedEventArgs) {
 			Func<TimeSpan> calcRemainder;
 			bool isBanned;
-			if (Properties.Settings.Default.BanTimestamp != default(DateTime)){
+			if (SettingsHelper.BanTimestamp != default(DateTime)){
 				isBanned = true;
 				calcRemainder = () =>
-					DateTime.Now - Properties.Settings.Default.BanTimestamp.AddHours(24);
+					DateTime.Now - SettingsHelper.BanTimestamp.AddHours(24);
 			}
 			else if (Scraper.LastScrapeTime != default(DateTime)){
 				isBanned = false;
 				calcRemainder = () =>
-					DateTime.Now - Scraper.LastScrapeTime.AddMilliseconds(Properties.Settings.Default.ScraperTimeout);
+					DateTime.Now - Scraper.LastScrapeTime.AddMilliseconds(SettingsHelper.ScraperTimeout);
 			}
 			else{
 				isBanned = false;
@@ -103,7 +104,7 @@ namespace SnesBonus.Views {
 			IsEnabled = false;
 
 			var newResult = await Scraper.GetSearchResult(game.Title);
-			if (newResult == null && Properties.Settings.Default.BanTimestamp != default(DateTime)){
+			if (newResult == null && SettingsHelper.BanTimestamp != default(DateTime)){
 				IsEnabled = true;
 				return;
 			}
@@ -111,7 +112,7 @@ namespace SnesBonus.Views {
 			if (pickerResult != null){
 				var result = await Scraper.GetGameDetails(pickerResult.Href);
 
-				var imagePath = Properties.SettingsHelper.ImageFolder + result.ImagePath.CleanFileName();
+				var imagePath = SettingsHelper.ImageFolder + result.ImagePath.CleanFileName();
 				if (System.IO.File.Exists(imagePath))
 					game.ImagePath = imagePath;
 				else if (string.IsNullOrEmpty(result.ImagePath) == false)
@@ -125,10 +126,7 @@ namespace SnesBonus.Views {
 		}
 
 		private void BtnEditRaw_Click(object sender, RoutedEventArgs e) {
-			var file = Properties.SettingsHelper.GamesDb;
-
-			var text = CsQuery.Utility.JSON.ToJSON(Models.Game.LoadGamesFromJson());
-			System.IO.File.WriteAllText(file, Lib.JsonHelper.FormatJson(text));
+			var file = SettingsHelper.GamesDb;
 
 			var processInfo = new System.Diagnostics.ProcessStartInfo(file) { Verb = "openas" };
 			try {
@@ -157,7 +155,7 @@ namespace SnesBonus.Views {
 				IsEnabled = true;
 			});
 			App.GamesDbChanged -= AppOnGamesDbChanged;
-			System.IO.File.WriteAllText(Properties.SettingsHelper.GamesDb, CsQuery.Utility.JSON.ToJSON(_games));
+            Game.SaveGamesToJson(_games);
 			App.GamesDbChanged += AppOnGamesDbChanged;
 		}
 	}

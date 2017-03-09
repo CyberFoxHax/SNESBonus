@@ -8,8 +8,8 @@ namespace SnesBonus {
 	public class Scraper {
 
 		public static DateTime LastScrapeTime { get; private set; }
-		private static readonly string ImageFolder = Properties.SettingsHelper.ImageFolder;
-		private static readonly int ScrapeTimeout = Properties.Settings.Default.ScraperTimeout;
+		private static readonly string ImageFolder = SettingsHelper.ImageFolder;
+		private static readonly int ScrapeTimeout = SettingsHelper.ScraperTimeout;
 		public static readonly Dictionary<string, SearchResult[]> CachedSearchResults = new Dictionary<string, SearchResult[]>();
 
 		public event Action ScrapeBegin;
@@ -52,7 +52,7 @@ namespace SnesBonus {
 				}
 
 				string href;
-				if (false){
+				if (false){ // lavenstein distance. why was that a good idea?
 					var searchResults = gather as SearchResult[] ?? gather.ToArray();
 					var dists = searchResults.Select(p => new{
 						Value = p,
@@ -75,11 +75,11 @@ namespace SnesBonus {
 					continue;
 				}
 
-				var imagePath = Properties.SettingsHelper.ImageFolder + result.ImagePath.CleanFileName();
+				var imagePath = SettingsHelper.ImageFolder + result.ImagePath.CleanFileName();
 				if (System.IO.File.Exists(imagePath))
-					game.ImagePath = imagePath;
+					game.FullImagePath = imagePath;
 				else if (string.IsNullOrEmpty(result.ImagePath) == false)
-					game.ImagePath = await DownloadImage(result.ImagePath);
+					game.FullImagePath = await DownloadImage(result.ImagePath);
 
 				result.FilePath = game.FilePath;
 
@@ -139,16 +139,18 @@ namespace SnesBonus {
 				"http://www.gamefaqs.com/search/index.html?platform=63&game={0}&developer=&publisher=&res=1",
 				gameName.Replace(" ", "%20")
 			));
-			await request.SendAwait();
+            await request.SendAwait();
+		    if (request.OnFailException != null)
+		        return null;
 			LastScrapeTime = DateTime.Now;
 
 			var doc = CsQuery.CQ.CreateDocument(request.Response());
 
 			var blocked = IsBlocked(doc);
 			if (blocked){
-				if (Properties.Settings.Default.BanTimestamp == default(DateTime)){
-					Properties.Settings.Default.BanTimestamp = DateTime.Now;
-					Properties.Settings.Default.Save();
+				if (SettingsHelper.BanTimestamp == default(DateTime)){
+					SettingsHelper.BanTimestamp = DateTime.Now;
+                    SettingsHelper.Save();
 				}
 				return null;
 			}
@@ -174,9 +176,9 @@ namespace SnesBonus {
 
 			var blocked = IsBlocked(doc);
 			if (blocked) {
-				if (Properties.SettingsHelper.BanTimestamp == default(DateTime)){
-					Properties.SettingsHelper.BanTimestamp = DateTime.Now;
-					Properties.SettingsHelper.Save();
+				if (SettingsHelper.BanTimestamp == default(DateTime)){
+					SettingsHelper.BanTimestamp = DateTime.Now;
+					SettingsHelper.Save();
 				}
 				return null;
 			}
