@@ -80,13 +80,13 @@ namespace SnesBonus.Views {
 			var mousePos = new Win32Point();
 			GetCursorPos(ref mousePos);
 			SetCursorPos((int) System.Windows.SystemParameters.PrimaryScreenWidth, 100);
-            Environment.Exit(0);
 			process.Exited += (o, args) =>{
-				Dispatcher.Invoke(Show);
+				//Dispatcher.Invoke(Show);
 				SetCursorPos(mousePos.X, mousePos.Y);
 				AppDomain.CurrentDomain.UnhandledException -= OnException;
-			};
-		}
+                Environment.Exit(0);
+            };
+        }
 
 		[System.Runtime.InteropServices.DllImport("User32.dll")]
 		private static extern bool SetCursorPos(int x, int y);
